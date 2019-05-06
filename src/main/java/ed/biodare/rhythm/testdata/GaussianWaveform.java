@@ -18,7 +18,7 @@ import static org.apache.commons.math3.util.FastMath.*;
 public class GaussianWaveform implements UnivariateFunction {
     
     public static GaussianWaveform create(double sigma, double phase) {
-        return new GaussianWaveform(sigma, phase);
+        return new GaussianWaveform(sigma, phase, true);
     }
     
     public static GaussianWaveform create(double sigma) {
@@ -35,7 +35,7 @@ public class GaussianWaveform implements UnivariateFunction {
     
     private double area;
     
-    public GaussianWaveform(double sigma, double phase) {
+    GaussianWaveform(double sigma, double phase, boolean fixMin) {
         
         if (phase >= 1) {
             throw new IllegalArgumentException("Gaussian waveform operates only "
@@ -47,7 +47,7 @@ public class GaussianWaveform implements UnivariateFunction {
         function = new Gaussian(0, sigma);
         
         double tmax = function.value(0);
-        min = min(function.value(0.5), function.value(-0.5));
+        min = fixMin ? min(function.value(0.5), function.value(-0.5)) : 0;
         max = tmax - min;
                
     }
