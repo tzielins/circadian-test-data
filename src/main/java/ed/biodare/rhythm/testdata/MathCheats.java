@@ -7,6 +7,12 @@ package ed.biodare.rhythm.testdata;
 
 import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.FiniteDifferencesDifferentiator;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.analysis.solvers.BrentSolver;
+import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import static org.apache.commons.math3.util.FastMath.*;
 
 /**
@@ -15,67 +21,77 @@ import static org.apache.commons.math3.util.FastMath.*;
  */
 public class MathCheats {
     
-    final double EPS = 1E-10;
+    final double EPS = 1E-6;
+    final double xEPS = 0.001;
     
     public double findXForMaxInArc(UnivariateFunction function, double start, 
-            double end, double xEps) {
+            double end) {
     
         if (start >= end)
             throw new IllegalArgumentException("Start must be before end");
         
-        final double dEPS = max(EPS,xEps/1000);
         
-        if (!rUp(function, start, dEPS))
-            throw new IllegalArgumentException("Function must raise at start");
-        if (!lUp(function, end, dEPS))
-            throw new IllegalArgumentException("Function must fall at end");
+        Derivative derivative = new Derivative(function);
+        UnivariateSolver solver   = new BrentSolver();
         
-        double left = start;
-        double right = end;
-        double maxL = function.value(left);
-        double maxR = function.value(right);
+        double eX = solver.solve(100,derivative, start,end,(start+end)/2);
         
-        double maxV, maxX;
-        if (maxR >= maxL ) {
-            maxV = maxR;
-            maxX = right;
-        } else {
-            maxV = maxL;
-            maxX = left;
-        }
+        if (abs(derivative.value(eX)) > EPS)
+            throw new IllegalStateException("Found "+eX+" as extreme candidate but derivative is not 0 at this point");
+
+        if (!couldBeMax(eX, function, start, end))
+            throw new IllegalStateException("Found "+eX+" as extreme candidate but it is not a max");
         
-        for (int i =0;i<1000;i++) {
-            double mid = (left+right)/2;
-            double v = function.value(mid);
-            
-            if (v > maxV) {
-                maxV = v;
-                maxX = mid;
-            }
-            
-            if (rUp(function, mid, dEPS)) {
-                left = mid;
-            } else {
-                right = mid;
-            }
-            
-            if ((right - left) < xEps) 
-                break;
-            
-        }
+        return eX;
         
         
-        double maxV = Double.MIN_VALUE;
-        double maxX = Double.NaN;
-        
-        return 1;
     }
     
-    final boolean rUp(UnivariateFunction function, double x, double EPS) {
-        return function.value(x+EPS) >= function.value(x); 
+    static class Derivative implements UnivariateFunction {
+        
+        UnivariateDifferentiableFunction derivative;
+        
+        Derivative(UnivariateFunction function) {
+            
+            FiniteDifferencesDifferentiator differentiator = new FiniteDifferencesDifferentiator(5, 0.01);
+
+            derivative = differentiator.differentiate(function);
+        }
+        
+        @Override
+        public double value(double x) {
+            DerivativeStructure xDS = new DerivativeStructure(1, 1, 0, x);
+            DerivativeStructure yDS = derivative.value(xDS);
+            return yDS.getPartialDerivative(1);
+        }
+    }
+
+    boolean couldBeMax(double eX, UnivariateFunction function, double start, double end) {
+        
+        double l1 = eX - xEPS;
+        double l2 = eX - 10*xEPS;
+        
+        double r1 = eX + xEPS;
+        double r2 = eX + 10*xEPS;
+        
+        double max = function.value(eX);
+        if (l1 >= start) {
+            if (function.value(l1) > max) {
+                return false;
+            }
+            if (l2 >= start && (function.value(l2) > max))
+                return false;
+        }
+        
+        if (r1 <= end) {
+            if (function.value(r1) > max) {
+                return false;                
+            }
+            if (r2 <= end && (function.value(r2) > max))
+                return false;
+        }
+        
+        return true;
     }
     
-    final boolean lUp(UnivariateFunction function, double x, double EPS) {
-        return function.value(x-EPS) >= function.value(x); 
-    }    
 }
