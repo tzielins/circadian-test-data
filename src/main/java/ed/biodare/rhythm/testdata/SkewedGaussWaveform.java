@@ -118,7 +118,7 @@ public class SkewedGaussWaveform extends GaussianWaveform {
             MathCheats math = new MathCheats();
 
             double start = -0.02; //for not skewed gaussian;
-            double end =  rightZeroStart;
+            double end =  rightZeroStart - 0.01; // it was giving wrong derivative for some combination
             if (skew < 0.1) end = sigma;
 
             peakPossition = math.findXForMaxInArc(this, start, end);

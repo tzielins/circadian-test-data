@@ -116,6 +116,23 @@ public class SkewedGaussWaveformTest {
         //System.out.println(wave.value(0)+"\t"+wave.value(peak));
         assertEquals(0.0, peak, 0.01);
         
+        sigma = 0.234375;
+        skew = 0.8;
+        wave = new SkewedGaussianFunction(sigma, skew);
+        
+        peak = wave.getPeakPosition();
+        //System.out.println(wave.value(0)+"\t"+wave.value(peak));
+        assertTrue(peak > 0.1);
+        assertTrue(peak < 0.2);
+        
+        sigma = 0.1171875;
+        skew = 1.2;
+        wave = new SkewedGaussianFunction(sigma, skew);
+        peak = wave.getPeakPosition();
+        System.out.println(wave.value(0)+"\t"+wave.value(peak));
+        assertTrue(peak > 0.05);
+        assertTrue(peak < 0.1);
+        
     }
     
     @Test

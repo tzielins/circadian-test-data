@@ -32,19 +32,50 @@ public class MathCheats {
         
         
         Derivative derivative = new Derivative(function);
-        UnivariateSolver solver   = new BrentSolver(EPS/100);
+        UnivariateSolver solver   = new BrentSolver(EPS/1000);
         
         double eX = solver.solve(100,derivative, start,end);
         
+        eX = tweakMaxPosition(eX, function, start, end);
+        /*
         if (abs(derivative.value(eX)) > EPS)
-            throw new IllegalStateException("Found "+eX+" as extreme candidate but derivative is not 0 at this point");
+            throw new IllegalStateException("Found "+eX+" as extreme candidate but derivative is not 0 at this point: "+derivative.value(eX));
 
         if (!couldBeMax(eX, function, start, end))
             throw new IllegalStateException("Found "+eX+" as extreme candidate but it is not a max");
-        
+        */
         return eX;
         
         
+    }
+
+    double tweakMaxPosition(double eX, UnivariateFunction function, double start, double end) {
+        
+        
+        double l1 = eX - xEPS;
+        double r1 = eX + xEPS;
+
+        double max = function.value(eX);
+        
+        if (l1 < start) l1 = start;
+        if (r1 > end) r1 = end;
+        
+        if (max < function.value(l1)) {
+            
+            while(l1 > start && function.value(l1) > max) {
+                max = function.value(l1);
+                eX = l1;
+                l1 = l1 - xEPS;
+            }
+        } else if (max < function.value(r1)){
+            
+            while(r1 < end && function.value(r1) > max) {
+                max = function.value(r1);
+                eX = r1;
+                r1 = r1 + xEPS;
+            }
+        } 
+        return eX;
     }
     
     static class Derivative implements UnivariateFunction {
@@ -77,17 +108,19 @@ public class MathCheats {
         double max = function.value(eX);
         if (l1 >= start) {
             if (function.value(l1) > max) {
-                return false;
+                throw new IllegalStateException("Found "+eX+" as extreme candidate but it is not a max l1 >");                
+                //return false;
             }
-            if (l2 >= start && (function.value(l2) > max))
+            if (l2 >= start && (function.value(l2) >= max))
                 return false;
         }
         
         if (r1 <= end) {
             if (function.value(r1) > max) {
-                return false;                
+                throw new IllegalStateException("Found "+eX+" as extreme candidate but it is not a max r1 >");                
+                //return false;                
             }
-            if (r2 <= end && (function.value(r2) > max))
+            if (r2 <= end && (function.value(r2) >= max))
                 return false;
         }
         
