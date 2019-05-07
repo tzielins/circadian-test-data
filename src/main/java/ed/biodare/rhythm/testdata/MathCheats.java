@@ -32,9 +32,9 @@ public class MathCheats {
         
         
         Derivative derivative = new Derivative(function);
-        UnivariateSolver solver   = new BrentSolver();
+        UnivariateSolver solver   = new BrentSolver(EPS/100);
         
-        double eX = solver.solve(100,derivative, start,end,(start+end)/2);
+        double eX = solver.solve(100,derivative, start,end);
         
         if (abs(derivative.value(eX)) > EPS)
             throw new IllegalStateException("Found "+eX+" as extreme candidate but derivative is not 0 at this point");
