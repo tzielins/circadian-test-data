@@ -12,49 +12,39 @@ import static org.apache.commons.math3.util.FastMath.*;
  * Based on http://elki.dbs.ifi.lmu.de/browser/elki/elki-core-math/src/main/java/de/lmu/ifi/dbs/elki/math/statistics/distribution/SkewGeneralizedNormalDistribution.java
  * @author tzielins
  */
-public class SkewedGaussWaveform implements UnivariateFunction {
+public class SkewedGaussWaveform extends GaussianWaveform {
     
     final double ONE_BY_SQRTTWOPI = 1. / sqrt(2. * PI);
     
-    final double wrapShift;
-    final double peakShift;
-    final SkewedGaussianFunction function;
-    final double min;
-    final double max;
+    final double skew;
+    
     
     SkewedGaussWaveform(double sigma, double skew, double phase, boolean fixMin) {
         
-        if (phase >= 1) {
-            throw new IllegalArgumentException("Gaussian waveform operates only "
-                    + "in [0,1) so the phase also has to be within this range");
-        }
+        this(sigma, skew, phase, fixMin, new SkewedGaussianFunction(sigma, skew));
         
-        if (skew <= 0) 
-            throw new IllegalArgumentException("Only positive skew values are supported");
         
-        function = new SkewedGaussianFunction(sigma, skew);        
-        wrapShift = findWrappingShift(function);
-        peakShift = function.getPeakPosition() - phase;
-        
-        double tmax = function.getPeakValue();
-        min = fixMin ? min(function.value(wrapShift), function.value(wrapShift-1)) : 0;
-        max = tmax - min;    
+    }
+
+    SkewedGaussWaveform(double sigma, double skew, double phase, boolean fixMin,
+            SkewedGaussianFunction function                    
+    ) {
+        this(sigma, skew, phase, fixMin, 
+                function, function.getPeakPosition(), findWrappingShift(function));
     }
     
-    @Override
-    public double value(double x) {
-        if (x < 0 || x > 1)
-            throw new IllegalArgumentException("Gaussian waveform operrates only in [0,1)");
-        
-        x = x + peakShift;
-        if (x > wrapShift) {
-            x = x - 1;
-        }
-        
-        return (function.value(x)-min)/max;
-    }    
+    SkewedGaussWaveform(double sigma, double skew, double phase, boolean fixMin,
+            UnivariateFunction function, double peakPosition,
+            double wrapBound                    
+    ) {
+        super(sigma, phase, fixMin, function, peakPosition, wrapBound);
+        this.skew = skew;
+    }
+    
+    
+    
 
-    double findWrappingShift(SkewedGaussianFunction function) {
+    static double findWrappingShift(SkewedGaussianFunction function) {
         
         double lowest = function.getPeakPosition() + 0.002;
         double highest = min(function.getPeakPosition()+0.5,function.rightZeroStart);
@@ -88,6 +78,10 @@ public class SkewedGaussWaveform implements UnivariateFunction {
         Double peakValue;
         
         SkewedGaussianFunction(double sigma, double skew) {
+            
+            if (skew <= 0) 
+                throw new IllegalArgumentException("Only positive skew values are supported");
+            
             this.sigma = sigma;
             this.skew = skew;
             
