@@ -17,6 +17,7 @@ import static org.apache.commons.math3.util.FastMath.min;
 public class WrappingWaveform implements UnivariateFunction {
     
     
+    final double phase;
     final double max;
     final double min;
     final UnivariateFunction function;
@@ -43,6 +44,7 @@ public class WrappingWaveform implements UnivariateFunction {
         double tmax = function.value(peakPosition);
         min = fixMin ? min(function.value(wrapBound), function.value(wrapBound-1)) : 0;
         max = tmax - min;
+        this.phase = phase;
     }    
 
     @Override
