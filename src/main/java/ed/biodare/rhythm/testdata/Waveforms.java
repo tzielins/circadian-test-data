@@ -43,40 +43,54 @@ public class Waveforms {
             
             case WIDE_PEAK: {
                 switch (skew) {
-                    case NONE: return new GaussianWaveform(0.234375, phase, false);
-                    case LOW: return new SkewedGaussWaveform(0.6661345623320886, skew.skew, phase, true);
-                    case MID: return new SkewedGaussWaveform(0.574048375875018, skew.skew, phase, true);
-                    case HIGH: return new SkewedGaussWaveform(0.6232796422294266, skew.skew, phase, true);
+                    case NONE: return new GaussianWaveform(0.203125, phase, false);
+                    /*
+                    case LOW: return new SkewedGaussWaveform(0.21897347065651573, skew.skew, phase, false);
+                    case MID: return new SkewedGaussWaveform(0.2784780878770199, skew.skew, phase, false);
+                    case HIGH: return new SkewedGaussWaveform(0.415636603046377, skew.skew, phase, false);
+                    */
+                    case LOW: return new SkewedGaussWaveform(0.711034440272608, skew.skew, phase, true);
+                    case MID: return new SkewedGaussWaveform(0.6700816291266387, skew.skew, phase, true);
+                    case HIGH: return new SkewedGaussWaveform(.7442591767475941, skew.skew, phase, true);
                     default: throw new IllegalArgumentException("Unsupported skew: "+skew+" for shape: "+shape);
                 }
             }
             
             case ONE_THIRD_PEAK: {
                 switch (skew) {
-                    case NONE: return new GaussianWaveform(0.15625, phase, false);
-                    case LOW: return new SkewedGaussWaveform(0.644915498934091, skew.skew, phase, true);
-                    case MID: return new SkewedGaussWaveform(0.4191873791721749, skew.skew, phase, true);
-                    case HIGH: return new SkewedGaussWaveform(0.4956415140024404, skew.skew, phase, true);
+                    case NONE: return new GaussianWaveform(0.140625, phase, false);
+                    /*case LOW: return new SkewedGaussWaveform(0.1516067989805035, skew.skew, phase, false);
+                    case MID: return new SkewedGaussWaveform(.19283827997555814, skew.skew, phase, false);
+                    case HIGH: return new SkewedGaussWaveform(.2878768391594375, skew.skew, phase, false);*/
+                    case LOW: return new SkewedGaussWaveform(0.16159421514938846, skew.skew, phase, true);
+                    case MID: return new SkewedGaussWaveform(0.2890010832949674, skew.skew, phase, true);
+                    case HIGH: return new SkewedGaussWaveform(0.4830298083311916, skew.skew, phase, true);
                     default: throw new IllegalArgumentException("Unsupported skew: "+skew+" for shape: "+shape);
                 }
             }
             
             case HALF_PEAK: {
                 switch (skew) {
-                    case NONE: return new GaussianWaveform(0.1171875, phase, true);
-                    case LOW: return new SkewedGaussWaveform(0.12824722660377758, skew.skew, phase, true);
-                    case MID: return new SkewedGaussWaveform(0.1889432870093771, skew.skew, phase, true);
-                    case HIGH: return new SkewedGaussWaveform(0.36060210145279536, skew.skew, phase, true);
+                    case NONE: return new GaussianWaveform(0.1015625, phase, false);
+                    /*case LOW: return new SkewedGaussWaveform(0.10950254478545297, skew.skew, phase, false);
+                    case MID: return new SkewedGaussWaveform(0.13931330292050073, skew.skew, phase, false);
+                    case HIGH: return new SkewedGaussWaveform(0.20802617814718816, skew.skew, phase, false);*/
+                    case LOW: return new SkewedGaussWaveform(0.11016841333997066, skew.skew, phase, true);
+                    case MID: return new SkewedGaussWaveform(0.1500836205989934, skew.skew, phase, true);
+                    case HIGH: return new SkewedGaussWaveform(0.28198739813204843, skew.skew, phase, true);
                     default: throw new IllegalArgumentException("Unsupported skew: "+skew+" for shape: "+shape);
                 }
             }
             
             case QUARTER_PEAK: {
                 switch (skew) {
-                    case NONE: return new GaussianWaveform(0.05859375, phase, true);
-                    case LOW: return new SkewedGaussWaveform(0.06318920294194973, skew.skew, phase, true);
-                    case MID: return new SkewedGaussWaveform(0.08171888088089879, skew.skew, phase, true);
-                    case HIGH: return new SkewedGaussWaveform(0.13647380017384064, skew.skew, phase, true);
+                    case NONE: return new GaussianWaveform(0.05078125, phase, false);
+                    /*case LOW: return new SkewedGaussWaveform(0.05476715911828679, skew.skew, phase, false);
+                    case MID: return new SkewedGaussWaveform(0.06973107359499559, skew.skew, phase, false);
+                    case HIGH: return new SkewedGaussWaveform(0.10420928568117749, skew.skew, phase, false);*/
+                    case LOW: return new SkewedGaussWaveform(0.054767394902696165, skew.skew, phase, true);
+                    case MID: return new SkewedGaussWaveform(0.07037477639896425, skew.skew, phase, true);
+                    case HIGH: return new SkewedGaussWaveform(0.1147667366789808, skew.skew, phase, true);
                     default: throw new IllegalArgumentException("Unsupported skew: "+skew+" for shape: "+shape);
                 }
             }            

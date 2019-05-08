@@ -32,7 +32,7 @@ public class WaveformsParamsFinder {
     public void findSkewedSigmas() {
         
         // starts = [0.0, 0.16666666666666666, 0.25, 0.375]
-        double[] sigmas = {0.234375, 0.15625, 0.1171875, 0.05859375};
+        double[] sigmas = {0.203125, 0.140625, 0.1015625, 0.05078125};
         double[] skews = { 0.4, 0.8, 1.2};
         
         for (double sigma : sigmas) {
@@ -41,7 +41,7 @@ public class WaveformsParamsFinder {
                 double skewedSigma = findSkewedSigmaMatchingAread(skew, sigma);
                 System.out.println("SOrg: "+sigma+"\tSkew: "+skew+"\tSkewd: "+skewedSigma);
                 
-                GaussianWaveform norm = new GaussianWaveform(sigma, 0.5, true);
+                GaussianWaveform norm = new GaussianWaveform(sigma, 0.5, false);
                 SkewedGaussWaveform skewed = new SkewedGaussWaveform(skewedSigma,skew,0.5,true);
                 
                 assertEquals(norm.area(),skewed.area(),norm.area()*0.01);
@@ -51,24 +51,24 @@ public class WaveformsParamsFinder {
     
     double findSkewedSigmaMatchingAread(double skew, double symSigma) {
     
-        GaussianWaveform norm = new GaussianWaveform(symSigma, 0.5, true);
+        GaussianWaveform norm = new GaussianWaveform(symSigma, 0.5, false);
         double area = norm.area();
         double E = 0.005 * area;
         
         double lSigma = symSigma;
-        
+        boolean fixMin = true;
         {
-            SkewedGaussWaveform skewed = new SkewedGaussWaveform(lSigma,skew,0.5,true);
+            SkewedGaussWaveform skewed = new SkewedGaussWaveform(lSigma,skew,0.5,fixMin);
             assertTrue(skewed.area() < area);
         }
         
         double hSigma = symSigma;
         
         {
-            SkewedGaussWaveform skewed = new SkewedGaussWaveform(hSigma,skew,0.5,true);
+            SkewedGaussWaveform skewed = new SkewedGaussWaveform(hSigma,skew,0.5,fixMin);
             
             for (int i = 0; i < 100; i++) {
-                skewed = new SkewedGaussWaveform(hSigma,skew,0.5,true);
+                skewed = new SkewedGaussWaveform(hSigma,skew,0.5,fixMin);
                 if (skewed.area() > area) break;
                 hSigma = 2 * hSigma;
             }
@@ -78,7 +78,7 @@ public class WaveformsParamsFinder {
         double sigma = (lSigma+hSigma)/2;
         
         for (int i = 0; i < 100; i++) {
-            SkewedGaussWaveform skewed = new SkewedGaussWaveform(sigma,skew,0.5,true);
+            SkewedGaussWaveform skewed = new SkewedGaussWaveform(sigma,skew,0.5,fixMin);
             
             if (skewed.area() < area - E) {
                 lSigma = sigma;
