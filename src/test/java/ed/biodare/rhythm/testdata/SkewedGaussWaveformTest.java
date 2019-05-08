@@ -44,11 +44,27 @@ public class SkewedGaussWaveformTest {
         SkewedGaussWaveform wave2 = new SkewedGaussWaveform(sigma, skew, 0.5, true);
         assertEquals(1, wave2.value(0.5),EPS);
         
-        double min = IntStream.range(0, 10000).mapToDouble( i -> i / 10000.0)
+        double min = IntStream.range(0, 1000).mapToDouble( i -> i / 1000.0)
                                 .map( x -> wave2.value(x))
                                 .min().getAsDouble();
         
         assertEquals(0, min,0.001);
+        
+        sigma = 0.45286837950167746;
+        skew = 1.2;
+        SkewedGaussWaveform wave3 = new SkewedGaussWaveform(sigma, skew, 0.4, true);
+        assertEquals(1, wave3.value(0.4),EPS);
+        
+        double min3 = IntStream.range(0, 1000).mapToDouble( i -> i / 1000.0)
+                                .map( x -> wave3.value(x))
+                                .min().getAsDouble();
+        
+        double minP = IntStream.range(0, 1000).mapToDouble( i -> i / 1000.0)
+                        .filter( x -> wave3.value(x) == min3)
+                        .findFirst().getAsDouble();
+        
+        assertEquals(0, min,0.001);        
+        System.out.println("POS: "+minP+"; "+min3+":"+wave3.value(minP)+":"+wave3.value(0.48)+":"+wave3.value(0.49));
         
     }
     

@@ -26,6 +26,7 @@ public class WrappingWaveform implements UnivariateFunction {
     final double peakShift;
     
     private double area;
+    final static double STEP = 0.001;
     
     WrappingWaveform(double phase, boolean fixMin,
             UnivariateFunction function, double peakPosition,
@@ -42,7 +43,7 @@ public class WrappingWaveform implements UnivariateFunction {
         peakShift = peakPosition - phase; 
         
         double tmax = function.value(peakPosition);
-        min = fixMin ? min(function.value(wrapBound), function.value(wrapBound-1)) : 0;
+        min = fixMin ? min(function.value(wrapBound-STEP), function.value(wrapBound-1)) : 0;
         max = tmax - min;
         this.phase = phase;
     }    
@@ -52,7 +53,8 @@ public class WrappingWaveform implements UnivariateFunction {
         if (x < 0 || x > 1)
             throw new IllegalArgumentException("Gaussian waveform operrates only in [0,1)");
         x = x + peakShift;
-        if (x >= wrapBound) {
+        // not going all the way to bound is it may be super steep in skewed
+        if (x > (wrapBound-STEP)) {
             x = x -1;
         }
         return (function.value(x)-min)/max;
@@ -79,11 +81,12 @@ public class WrappingWaveform implements UnivariateFunction {
         if (area > 0) {
             return area;
         }
-        int N = 500;
-        double step = 0.5 / N;
-        double sum = -N * min;
-        for (int i = 0; i< N; i++) {
-            sum += function.value(i*step);
+        int N = 0;
+        double step = STEP;
+        double sum = 0;
+        for (double i = 0; i< 1; i+= step) {
+            sum += function.value(i) - min;
+            N++;
         }
         
         area = (sum / max) / N;

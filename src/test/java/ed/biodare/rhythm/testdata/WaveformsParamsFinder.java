@@ -44,7 +44,7 @@ public class WaveformsParamsFinder {
                 GaussianWaveform norm = new GaussianWaveform(sigma, 0.5, true);
                 SkewedGaussWaveform skewed = new SkewedGaussWaveform(skewedSigma,skew,0.5,true);
                 
-                assertEquals(norm.area(),skewed.area(),norm.area()*0.05);
+                assertEquals(norm.area(),skewed.area(),norm.area()*0.01);
             }
         }
     }
@@ -53,7 +53,7 @@ public class WaveformsParamsFinder {
     
         GaussianWaveform norm = new GaussianWaveform(symSigma, 0.5, true);
         double area = norm.area();
-        double E = 0.01 * area;
+        double E = 0.005 * area;
         
         double lSigma = symSigma;
         
@@ -100,7 +100,7 @@ public class WaveformsParamsFinder {
         double[] starts = {0, 1.0/6, 0.25, 3.0/8};
 
         double zerolike = 0.01;
-        double nonzero = 0.1;
+        double nonzero = 0.05;
         
         double[] sigmas = new double[starts.length];
         for (int i =0; i< starts.length; i++) {
