@@ -149,7 +149,7 @@ public class Waveforms {
         double[][] dataset = multiplyWithNoise(size, pattern, dis);
         return dataset;
         
-    }    
+    } 
     
     static double[][] multiplyWithNoise(int size, double[] pattern, double noiseFactor) {
         
