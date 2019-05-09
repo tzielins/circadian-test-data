@@ -52,7 +52,7 @@ public class WrappingWaveform implements UnivariateFunction {
     @Override
     public double value(double x) {
         if (x < 0 || x > 1)
-            throw new IllegalArgumentException("Gaussian waveform operrates only in [0,1)");
+            throw new IllegalArgumentException("Gaussian waveform operrates only in [0,1), x="+x);
         x = x + peakShift;
         // not going all the way to bound is it may be super steep in skewed
         if (x > (wrapBound-STEP)) {

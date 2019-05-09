@@ -5,12 +5,18 @@
  */
 package ed.biodare.rhythm.testdata;
 
+import java.util.Arrays;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.random.Well19937c;
+import static org.apache.commons.math3.util.FastMath.*;
 /**
  *
  * @author tzielins
  */
 public class Waveforms {
-    
+
+
+
     public enum Shape {
         COS,
         WIDE_PEAK,
@@ -32,7 +38,7 @@ public class Waveforms {
         final public double skew;
     }
     
-    public WrappingWaveform waveform(Shape shape,Skew skew,double phase) {
+    public static WrappingWaveform waveform(Shape shape,Skew skew,double phase) {
         
         switch (shape) {
             case COS: {
@@ -97,4 +103,70 @@ public class Waveforms {
             default: throw new IllegalArgumentException("Unsupported shape: "+shape);
         }
     }
+    
+    public static double[] makeTimes(int durationHours, int stepInMinutes) {
+        
+        int size = 1+(durationHours*60)/stepInMinutes;
+        double[] times = new double[size];
+        
+        for (int i =0;i<size;i++) {
+            times[i] = rint((i*stepInMinutes*100)/60.0)/100.0; // multiplied by 100 to havd a nice centy rounding
+        }
+        return times;
+    }
+    
+    public static double[] generateSerie(double[] times, Shape shape, Skew skew, 
+            double period, double ciracdianPhase, double amplitude) {
+        
+        double phase = ciracdianPhase/24.0;
+        
+        PeriodicWaveform wave = new PeriodicWaveform(period, amplitude, waveform(shape, skew, phase), 10);
+
+        return wave.values(times);
+    }
+    
+    public static double[][] generateDataSet(int size, double[] times, Shape shape, Skew skew, 
+            double period, double ciracdianPhase, double amplitude, double noiseLevel   ) {
+        
+        double noiseFactor = noiseLevel*amplitude;
+        double[] pattern = generateSerie(times, shape, skew, period, ciracdianPhase, amplitude);
+                        
+        double[][] dataset = multiplyWithNoise(size, pattern, noiseFactor);
+        return dataset;
+        
+    }
+    
+    static double[][] multiplyWithNoise(int size, double[] pattern, double noiseFactor) {
+        
+        double[][] dataset = new double[size][];
+        //This random generator is used with unparametrized NormalDistribution
+        Well19937c random = new Well19937c(calculateSeed(pattern, noiseFactor));
+        
+        NormalDistribution dis = new NormalDistribution(random, 0, noiseFactor);
+        for (int i =0; i< size; i++) {
+            dataset[i] = addNoise(pattern, dis);
+        }
+        return dataset;
+    }
+    
+    
+    static int calculateSeed(double[] pattern, double noiseFactor) {
+        int seed = Double.hashCode(noiseFactor);
+        for (double d : pattern) seed+=Double.hashCode(d);
+        return seed;
+    }
+
+    static double[] addNoise(double[] pattern, NormalDistribution dis) {
+        double[] res = Arrays.copyOf(pattern, pattern.length);
+        double[] noise = dis.sample(res.length);
+        
+        for (int i =0;i< res.length; i++) {
+            res[i]+= noise[i];
+        }
+        return res;
+    }
+
+    
+    
+    
 }
