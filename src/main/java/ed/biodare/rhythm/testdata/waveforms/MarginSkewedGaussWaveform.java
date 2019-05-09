@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
-import static ed.biodare.rhythm.testdata.WrappingWaveform.STEP;
+import static ed.biodare.rhythm.testdata.waveforms.WrappingWaveform.STEP;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
@@ -15,7 +15,7 @@ import static org.apache.commons.math3.util.FastMath.*;
  * Based on http://elki.dbs.ifi.lmu.de/browser/elki/elki-core-math/src/main/java/de/lmu/ifi/dbs/elki/math/statistics/distribution/SkewGeneralizedNormalDistribution.java
  * @author tzielins
  */
-public class MarginSkewedGaussWaveform extends SkewedGaussWaveform {
+class MarginSkewedGaussWaveform extends SkewedGaussWaveform {
     
     final static double SMOOTH_MARGIN = 0.1;
     

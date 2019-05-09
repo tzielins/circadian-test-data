@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import java.util.ArrayList;
 import java.util.List;

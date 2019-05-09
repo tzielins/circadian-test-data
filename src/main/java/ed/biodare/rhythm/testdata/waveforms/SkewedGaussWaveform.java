@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import static org.apache.commons.math3.util.FastMath.*;
@@ -12,7 +12,7 @@ import static org.apache.commons.math3.util.FastMath.*;
  * Based on http://elki.dbs.ifi.lmu.de/browser/elki/elki-core-math/src/main/java/de/lmu/ifi/dbs/elki/math/statistics/distribution/SkewGeneralizedNormalDistribution.java
  * @author tzielins
  */
-public class SkewedGaussWaveform extends GaussianWaveform {
+class SkewedGaussWaveform extends GaussianWaveform {
     
     final double ONE_BY_SQRTTWOPI = 1. / sqrt(2. * PI);
     

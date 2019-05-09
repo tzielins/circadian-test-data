@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
+import ed.biodare.rhythm.testdata.waveforms.WrappingWaveform;
+import ed.biodare.rhythm.testdata.waveforms.Waveforms;
+import ed.biodare.rhythm.testdata.waveforms.PeriodicWaveform;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;

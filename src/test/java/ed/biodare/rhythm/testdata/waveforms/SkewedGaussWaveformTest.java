@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
-import ed.biodare.rhythm.testdata.SkewedGaussWaveform.SkewedGaussianFunction;
+import ed.biodare.rhythm.testdata.waveforms.SkewedGaussWaveform;
+import ed.biodare.rhythm.testdata.waveforms.SkewedGaussWaveform.SkewedGaussianFunction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

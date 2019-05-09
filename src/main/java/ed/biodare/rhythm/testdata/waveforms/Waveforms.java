@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -136,18 +136,39 @@ public class Waveforms {
         
     }
     
+    public static double[][] generateNoise(int size, double[] times) {
+        
+        double noiseFactor = 1;
+        
+        //This random generator is used with unparametrized NormalDistribution
+        Well19937c random = new Well19937c(calculateSeed(times, noiseFactor));        
+        NormalDistribution dis = new NormalDistribution(random, 0, noiseFactor);        
+        
+        double[] pattern = Arrays.copyOf(new double[0], times.length);
+        
+        double[][] dataset = multiplyWithNoise(size, pattern, dis);
+        return dataset;
+        
+    }    
+    
     static double[][] multiplyWithNoise(int size, double[] pattern, double noiseFactor) {
         
-        double[][] dataset = new double[size][];
         //This random generator is used with unparametrized NormalDistribution
-        Well19937c random = new Well19937c(calculateSeed(pattern, noiseFactor));
-        
+        Well19937c random = new Well19937c(calculateSeed(pattern, noiseFactor));        
         NormalDistribution dis = new NormalDistribution(random, 0, noiseFactor);
+        
+        return multiplyWithNoise(size, pattern, dis);
+    }
+    
+    static double[][] multiplyWithNoise(int size, double[] pattern, NormalDistribution dis) {
+        
+        double[][] dataset = new double[size][];
+        
         for (int i =0; i< size; i++) {
             dataset[i] = addNoise(pattern, dis);
         }
         return dataset;
-    }
+    }    
     
     
     static int calculateSeed(double[] pattern, double noiseFactor) {

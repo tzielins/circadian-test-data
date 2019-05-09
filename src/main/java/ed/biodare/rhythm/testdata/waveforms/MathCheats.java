@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import java.util.function.DoubleUnaryOperator;
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -19,7 +19,7 @@ import static org.apache.commons.math3.util.FastMath.*;
  *
  * @author Zielu
  */
-public class MathCheats {
+class MathCheats {
     
     final double EPS = 1E-6;
     final double xEPS = 0.001;

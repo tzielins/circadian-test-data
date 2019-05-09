@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
+import ed.biodare.rhythm.testdata.waveforms.SkewedGaussWaveform;
+import ed.biodare.rhythm.testdata.waveforms.GaussianWaveform;
 import java.util.Arrays;
 import java.util.List;
 import static org.apache.commons.math3.util.FastMath.*;

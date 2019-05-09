@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
+import ed.biodare.rhythm.testdata.waveforms.MarginSkewedGaussWaveform;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
+import ed.biodare.rhythm.testdata.waveforms.WrappingWaveform;
+import ed.biodare.rhythm.testdata.waveforms.CosineWaveform;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import static org.apache.commons.math3.util.FastMath.*;
 import org.junit.Before;

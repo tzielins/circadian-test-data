@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
@@ -12,7 +12,7 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
  *
  * @author tzielins
  */
-public class PeriodicWaveform implements UnivariateFunction {
+class PeriodicWaveform implements UnivariateFunction {
     
     final double period;
     final double phase;

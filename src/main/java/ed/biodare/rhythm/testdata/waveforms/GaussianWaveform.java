@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ed.biodare.rhythm.testdata;
+package ed.biodare.rhythm.testdata.waveforms;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.function.Gaussian;
@@ -12,7 +12,7 @@ import org.apache.commons.math3.analysis.function.Gaussian;
  *
  * @author tzielins
  */
-public class GaussianWaveform extends WrappingWaveform {
+class GaussianWaveform extends WrappingWaveform {
     
     public static GaussianWaveform create(double sigma, double phase) {
         return new GaussianWaveform(sigma, phase, true);
