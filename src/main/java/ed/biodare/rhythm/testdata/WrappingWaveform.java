@@ -26,6 +26,7 @@ public class WrappingWaveform implements UnivariateFunction {
     final double peakShift;
     
     private double area;
+    private double mean;
     final static double STEP = 0.001;
     
     WrappingWaveform(double phase, boolean fixMin,
@@ -81,6 +82,20 @@ public class WrappingWaveform implements UnivariateFunction {
         if (area > 0) {
             return area;
         }
+        double step = STEP;
+        double sum = 0;
+        for (double i = 0; i< 1; i+= step) {
+            sum += (function.value(i) - min);
+        }
+        
+        area = (step*sum) / max; 
+        return area;
+    }
+    
+    public double mean() {
+        if (mean > 0) {
+            return mean;
+        }
         int N = 0;
         double step = STEP;
         double sum = 0;
@@ -88,9 +103,9 @@ public class WrappingWaveform implements UnivariateFunction {
             sum += function.value(i) - min;
             N++;
         }
+        mean = (sum / max)/ N;
+        return mean;
         
-        area = (sum / max) / N;
-        return area;
     }
     
     

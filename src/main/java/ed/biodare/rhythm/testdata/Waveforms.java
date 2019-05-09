@@ -90,7 +90,7 @@ public class Waveforms {
                     case HIGH: return new SkewedGaussWaveform(0.10420928568117749, skew.skew, phase, false);*/
                     case LOW: return new SkewedGaussWaveform(0.054767394902696165, skew.skew, phase, true);
                     case MID: return new SkewedGaussWaveform(0.07037477639896425, skew.skew, phase, true);
-                    case HIGH: return new SkewedGaussWaveform(0.1147667366789808, skew.skew, phase, true);
+                    case HIGH: return new SkewedGaussWaveform(0.11476673667898121, skew.skew, phase, true);
                     default: throw new IllegalArgumentException("Unsupported skew: "+skew+" for shape: "+shape);
                 }
             }            
