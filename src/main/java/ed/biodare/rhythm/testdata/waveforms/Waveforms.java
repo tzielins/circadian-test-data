@@ -104,19 +104,22 @@ public class Waveforms {
         }
     }
     
-    public static double[] makeTimes(int durationHours, int stepInMinutes) {
+    public static double[] makeTimes(int durationHours, int intervalInMinutes) {
         
-        int size = 1+(durationHours*60)/stepInMinutes;
+        int size = 1+(durationHours*60)/intervalInMinutes;
         double[] times = new double[size];
         
         for (int i =0;i<size;i++) {
-            times[i] = rint((i*stepInMinutes*100)/60.0)/100.0; // multiplied by 100 to havd a nice centy rounding
+            times[i] = rint((i*intervalInMinutes*100)/60.0)/100.0; // multiplied by 100 to havd a nice centy rounding
         }
         return times;
     }
     
     public static double[] generateSerie(double[] times, Shape shape, Skew skew, 
             double period, double ciracdianPhase, double amplitude) {
+        
+        if (amplitude < 1 || amplitude > 8) 
+            throw new IllegalArgumentException("Supported amplitudes are (1,8) as mean is 10, requrested="+amplitude);
         
         double phase = ciracdianPhase/24.0;
         
@@ -125,7 +128,7 @@ public class Waveforms {
         return wave.values(times);
     }
     
-    public static double[][] generateDataSet(int size, double[] times, Shape shape, Skew skew, 
+    public static double[][] generateSeriesSet(int size, double[] times, Shape shape, Skew skew, 
             double period, double ciracdianPhase, double amplitude, double noiseLevel   ) {
         
         double noiseFactor = noiseLevel*amplitude;

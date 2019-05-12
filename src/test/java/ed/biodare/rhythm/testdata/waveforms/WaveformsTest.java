@@ -163,7 +163,7 @@ public class WaveformsTest {
         double amplitude = 2;
         double noiseLevel = 0.1;
         
-        double[][] set =generateDataSet(size, times, shape, skew, period, 
+        double[][] set =generateSeriesSet(size, times, shape, skew, period, 
                 ciracdianPhase, amplitude, noiseLevel);
         
         assertEquals(3, set.length);
