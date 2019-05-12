@@ -23,7 +23,6 @@ public class DataDescription implements Serializable, Cloneable {
     static final long serialVersionUID = 42L;
 
     
-    public int id;
     public boolean rhythmic;
     public double period;
     public double phase;
@@ -45,13 +44,12 @@ public class DataDescription implements Serializable, Cloneable {
     }
     
     static List<String> makeHeader() {
-        return Arrays.asList("id","rhythmic","period","phase","amplitude","mean",
+        return Arrays.asList("rhythmic","period","phase","amplitude","mean",
                 "noiseLevel","shape","skew");
     }
 
     List<String> toRow() {
         return Arrays.asList(
-                Integer.toString(id),
                 Boolean.toString(rhythmic),
                 Double.toString(period),
                 Double.toString(phase),

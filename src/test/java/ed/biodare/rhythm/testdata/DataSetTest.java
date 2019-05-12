@@ -44,7 +44,7 @@ public class DataSetTest {
         instance.add(entry);
         
         assertSame(entry, instance.entries.get(0));
-        assertEquals(1, entry.description.id);
+        assertEquals(1, entry.id);
     }
 
 
@@ -127,7 +127,7 @@ public class DataSetTest {
         entry.values = v2;
         set.add(entry);
         
-        List<List<String>> table = set.toTable();
+        List<List<String>> table = set.toTable(true);
         assertEquals(3, table.size());
         
         List<String> row = table.get(1);

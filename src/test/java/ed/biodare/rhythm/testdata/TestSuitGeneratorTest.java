@@ -116,10 +116,10 @@ public class TestSuitGeneratorTest {
         
         Path file = testFolder.newFile().toPath();
         
-        instance.saveForJave(set, file);
+        instance.saveForJava(set, file);
         assertTrue(Files.exists(file));
         
-        set = instance.readFromJave(file);
+        set = instance.readFromJava(file);
         assertNotNull(set);
         assertEquals(2, set.entries.size());
         assertEquals(COS, set.entries.get(0).description.shape);
@@ -147,7 +147,7 @@ public class TestSuitGeneratorTest {
         
         Path file = testFolder.newFile().toPath();
         
-        instance.saveForCSV(set, file);
+        instance.saveForCSV(set, file, true);
         assertTrue(Files.exists(file));
         
         List<String> lines = Files.readAllLines(file);

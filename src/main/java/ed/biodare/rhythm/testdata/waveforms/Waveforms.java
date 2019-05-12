@@ -139,6 +139,13 @@ public class Waveforms {
         
     }
     
+    public static double[] roundToMil(double[] values) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = Math.rint(values[i]*1000)/1000;
+        }
+        return values;
+    }
+    
     public static double[][] generateNoise(int size, double[] times) {
         
         double noiseFactor = 1;

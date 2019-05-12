@@ -19,6 +19,7 @@ public class DataEntry implements Serializable {
     
     static final long serialVersionUID = 42L;
 
+    public int id;
     public DataDescription description;
     public double[] values;
     
@@ -34,14 +35,18 @@ public class DataEntry implements Serializable {
         this.values = values;
     }
 
-    static List<String> makeHeader() {
-        return DataDescription.makeHeader();
+    static List<String> makeHeader(boolean withDescription) {
+        List<String> row = new ArrayList<>();
+        row.add("id");
+        if (withDescription) row.addAll(DataDescription.makeHeader());
+        return row;
     }
     
     
-    List<String> toRow() {
+    List<String> toRow(boolean withDescription) {
         List<String> row = new ArrayList<>();
-        row.addAll(description.toRow());
+        row.add(Integer.toString(id));
+        if (withDescription) row.addAll(description.toRow());
         for (double value: values) {
             row.add(Double.toString(value));
         }

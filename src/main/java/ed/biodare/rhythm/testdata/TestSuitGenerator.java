@@ -32,7 +32,7 @@ public class TestSuitGenerator {
             int replicates) {
         
         
-        double[] times = makeTimes(durationHours, intervalMinutes);
+        double[] times = roundToMil(makeTimes(durationHours, intervalMinutes));
         
         DataSet set = new DataSet();
         set.durationHours = durationHours;
@@ -75,9 +75,8 @@ public class TestSuitGenerator {
                             description.shape = shape;
                             description.skew = skew;
                             
-                            // for serialization descriptin can be shared
                             for (double[] values : datas) {
-                                DataEntry entry = new DataEntry(description, values);
+                                DataEntry entry = new DataEntry(description, roundToMil(values));
                                 entries.add(entry);
                             }
                         }
@@ -88,13 +87,47 @@ public class TestSuitGenerator {
         return entries;
     } 
     
-    public void saveForJave(DataSet set, Path file) throws IOException {
+    public DataSet generateNoiseSet(int durationHours, int intervalMinutes, 
+            int replicates) {
+        
+        
+        double[] times = roundToMil(makeTimes(durationHours, intervalMinutes));
+        
+        DataSet set = new DataSet();
+        set.durationHours = durationHours;
+        set.intervalInMinutes = intervalMinutes;
+        set.times = times;
+        set.addEntries(
+                generateNoiseEntries(times, replicates));
+        
+        return set;
+    } 
+    
+    public List<DataEntry> generateNoiseEntries(double[] times, 
+            int replicates) {
+        
+        
+        List<DataEntry> entries = new ArrayList<>();
+                            
+        double[][] datas = generateNoise(replicates, times);
+
+        DataDescription description = new DataDescription();
+        description.rhythmic = false;
+
+        for (double[] values : datas) {
+            DataEntry entry = new DataEntry(description, roundToMil(values));
+            entries.add(entry);
+        }
+        return entries;
+    }     
+    
+    public void saveForJava(DataSet set, Path file) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(file))) {
             out.writeObject(set);
         }
     }
     
-    public DataSet readFromJave(Path file) throws IOException {
+    public DataSet readFromJava(Path file) throws IOException {
         try (ObjectInputStream out = new ObjectInputStream(Files.newInputStream(file))) {
             return (DataSet)out.readObject();
         } catch (ClassNotFoundException e) {
@@ -102,10 +135,10 @@ public class TestSuitGenerator {
         }
     }
     
-    public void saveForCSV(DataSet set, Path file) throws IOException {
+    public void saveForCSV(DataSet set, Path file, boolean withDescription) throws IOException {
         
         String SEP = ",";
-        List<List<String>> table = set.toTable();
+        List<List<String>> table = set.toTable(withDescription);
         
         List<String> lines = table.stream()
                                     .map ( l -> l.stream().collect(Collectors.joining(SEP)))

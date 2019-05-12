@@ -38,7 +38,7 @@ public class DataSet implements Serializable {
     
     public void add(DataEntry entry,boolean setId, boolean setTimeCharacter) {
         if (setId) {
-            entry.description.id = entries.size()+1;
+            entry.id = entries.size()+1;
         }
         if (setTimeCharacter) {
             entry.description.intervalInMinutes = intervalInMinutes;
@@ -47,18 +47,18 @@ public class DataSet implements Serializable {
         entries.add(entry);
     }
     
-    public List<List<String>> toTable() {
+    public List<List<String>> toTable(boolean withDescription) {
         List<List<String>> rows = new ArrayList<>();
         
-        rows.add(makeHeader());
-        entries.forEach( entry -> rows.add(entry.toRow()));
+        rows.add(makeHeader(withDescription));
+        entries.forEach( entry -> rows.add(entry.toRow(withDescription)));
         
         return rows;
     }
 
-    List<String> makeHeader() {
+    List<String> makeHeader(boolean withDescription) {
         List<String> row = new ArrayList<>();
-        row.addAll(DataEntry.makeHeader());
+        row.addAll(DataEntry.makeHeader(withDescription));
         for (double time: times) {
             row.add(Double.toString(time));
         }
