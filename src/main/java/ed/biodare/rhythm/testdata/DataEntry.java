@@ -37,7 +37,7 @@ public class DataEntry implements Serializable {
 
     static List<String> makeHeader(boolean withDescription) {
         List<String> row = new ArrayList<>();
-        row.add("id");
+        row.add("ID");
         if (withDescription) row.addAll(DataDescription.makeHeader());
         return row;
     }

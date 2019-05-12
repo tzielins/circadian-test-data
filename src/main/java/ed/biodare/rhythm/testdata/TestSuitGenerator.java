@@ -135,9 +135,8 @@ public class TestSuitGenerator {
         }
     }
     
-    public void saveForCSV(DataSet set, Path file, boolean withDescription) throws IOException {
+    public void saveForTxt(DataSet set, Path file, boolean withDescription, String SEP) throws IOException {
         
-        String SEP = ",";
         List<List<String>> table = set.toTable(withDescription);
         
         List<String> lines = table.stream()

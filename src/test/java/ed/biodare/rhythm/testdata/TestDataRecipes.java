@@ -90,8 +90,8 @@ public class TestDataRecipes {
                         Path file = outDir.resolve(name+".ser");
                         generator.saveForJava(set, file);
                         
-                        file = outDir.resolve(name+".csv");
-                        generator.saveForCSV(set, file, false);
+                        file = outDir.resolve(name+".txt");
+                        generator.saveForTxt(set, file, false,"\t");
                         
                     }
                 }
@@ -103,8 +103,8 @@ public class TestDataRecipes {
             Path file = outDir.resolve(name+".ser");
             generator.saveForJava(noise, file);
 
-            file = outDir.resolve(name+".csv");
-            generator.saveForCSV(noise, file, false);
+            file = outDir.resolve(name+".txt");
+            generator.saveForTxt(noise, file, false,"\t");
         }
     }
     

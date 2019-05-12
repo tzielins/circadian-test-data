@@ -147,7 +147,7 @@ public class TestSuitGeneratorTest {
         
         Path file = testFolder.newFile().toPath();
         
-        instance.saveForCSV(set, file, true);
+        instance.saveForTxt(set, file, true,",");
         assertTrue(Files.exists(file));
         
         List<String> lines = Files.readAllLines(file);
