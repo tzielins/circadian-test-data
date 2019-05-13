@@ -127,7 +127,7 @@ public class TestSuitGenerator {
         }
     }
     
-    public DataSet readFromJava(Path file) throws IOException {
+    public static DataSet readFromJava(Path file) throws IOException {
         try (ObjectInputStream out = new ObjectInputStream(Files.newInputStream(file))) {
             return (DataSet)out.readObject();
         } catch (ClassNotFoundException e) {
