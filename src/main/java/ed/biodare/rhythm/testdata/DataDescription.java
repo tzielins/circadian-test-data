@@ -43,12 +43,12 @@ public class DataDescription implements Serializable, Cloneable {
         }
     }
     
-    static List<String> makeHeader() {
+    public static List<String> makeHeader() {
         return Arrays.asList("rhythmic","period","phase","amplitude","mean",
                 "noiseLevel","shape","skew");
     }
 
-    List<String> toRow() {
+    public List<String> toRow() {
         return Arrays.asList(
                 Boolean.toString(rhythmic),
                 Double.toString(period),
