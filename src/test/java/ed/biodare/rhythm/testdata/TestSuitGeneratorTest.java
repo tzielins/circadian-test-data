@@ -152,7 +152,7 @@ public class TestSuitGeneratorTest {
         
         List<String> lines = Files.readAllLines(file);
         assertEquals(3, lines.size());
-        assertTrue(lines.get(0).startsWith("id,"));
+        assertTrue(lines.get(0).startsWith("ID,"));
         assertTrue(lines.get(2).startsWith("2,"));
         
         
