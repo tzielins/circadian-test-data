@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author tzielins
  */
-public class DataSet implements Serializable {
+public class DataSet implements Serializable, Cloneable {
     
     static final long serialVersionUID = 42L;
     
@@ -25,6 +25,16 @@ public class DataSet implements Serializable {
     
     public double[] times;
     public List<DataEntry> entries = new ArrayList<>();
+
+    @Override
+    public DataSet clone()  {
+        try {
+            return (DataSet)super.clone(); 
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     
     public void add(DataEntry entry) {
         add(entry, true, true);
