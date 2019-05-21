@@ -35,7 +35,7 @@ public class DataDescription implements Serializable, Cloneable {
     public double durationHours;
 
     @Override
-    protected DataDescription clone() {
+    public DataDescription clone() {
         try {
             return (DataDescription) super.clone(); 
         } catch (CloneNotSupportedException e) {
