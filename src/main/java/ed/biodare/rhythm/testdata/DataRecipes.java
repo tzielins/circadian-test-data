@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  *
@@ -31,6 +32,7 @@ public class DataRecipes {
         try {
             //recipePythonVSJava(mainOutDir.resolve("python_comp"));
             //recipePeriodsSpreadWithSampling(mainOutDir.resolve("period_spread"));
+            //recipeClosePeriodsPhasesWithSampling(mainOutDir.resolve("period_resolution"));
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace(System.err);
@@ -156,6 +158,105 @@ public class DataRecipes {
 
                             file = outDir.resolve(name+".txt");
                             generator.saveForTxt(set, file, false,"\t");
+
+                    }
+                }
+                
+                DataSet noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries);
+                //set noise level for aggregating results (50:50 noise to data)
+                noise.entries.get(0).description.noiseLevel = noiseLevel;
+                String name = interval+"_NL_"+noiseLevel+"_noise";
+
+                Path file = outDir.resolve(name+".ser");
+                generator.saveForJava(noise, file);
+
+                file = outDir.resolve(name+".txt");
+                generator.saveForTxt(noise, file, false,"\t");
+                
+                // make another noise data for ration (5: 1 noise to data)
+                // so 4 * series as there is already 1 noise per data
+                noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries*4);
+                //set noise level for aggregating results
+                noise.entries.get(0).description.noiseLevel = -noiseLevel;
+                name = interval+"_NL_"+noiseLevel+"_larger_noise";
+
+                file = outDir.resolve(name+".ser");
+                generator.saveForJava(noise, file);
+
+                file = outDir.resolve(name+".txt");
+                generator.saveForTxt(noise, file, false,"\t");
+            }
+        }
+    }
+   
+    
+    /**
+     * Data Set for testing resolution of phases and periods.
+     * 2 days of data sampled every one, two, fours hours,
+     * Periods 23, 23.5, 24, 24.5, 25, 26
+     * Phases 0, 1, 2, 3, 4, 5  non-circadian
+     * noises 0.5, 0.25, 0.1
+     */
+    public static void recipeClosePeriodsPhasesWithSampling(Path suitDir) throws IOException {
+        
+        if (!Files.exists(suitDir))
+            Files.createDirectories(suitDir);
+        
+        TestSuitGenerator generator = new TestSuitGenerator();
+        
+        int durationHours = 48;
+        int[] intervals = {60, 120, 240};
+        
+        Shape[] shapes = {COS, WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK, QUARTER_PEAK };
+        Skew[] skews = {NONE, Skew.MID, Skew.HIGH};
+        
+        double[] periods = {23, 23.5, 24, 24.5, 25, 26}; 
+        
+        double[] phases = {0, 1, 2, 3, 4, 5};
+        
+        double[] noiseLevels = {0.1, 0.25, 0.5};
+        int replicates = 20;
+        
+        for (int interval: intervals) {
+            Path outDir = suitDir.resolve(""+interval);
+            Files.createDirectories(outDir);
+            
+            double[] times = roundToMil(makeTimes(durationHours, interval));
+        
+            
+            for (double noiseLevel: noiseLevels) {
+                
+                int perNoiseSeries = 0;
+                for (Shape shape: shapes) {
+                    for (Skew skew: skews) {
+
+                        DataSet joined = new DataSet();
+                        joined.durationHours = durationHours;
+                        joined.intervalInMinutes = interval;
+                        joined.times = times;
+                        
+                        for (double period: periods) {
+                            
+                            double[] circadianPhases = Arrays.stream(phases).map( p -> (p*24)/period).toArray();
+                            
+                            joined.addEntries(
+                                    generator.generateEntries(times, new Shape[]{shape}, new Skew[]{skew}, 
+                                            new double[]{period}, 
+                                            circadianPhases, 
+                                            new double[]{noiseLevel}, replicates
+                                            ));
+                        }
+                        
+                        if (joined.entries.isEmpty()) continue;
+                        perNoiseSeries+= joined.entries.size();
+
+                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_18-34";
+
+                        Path file = outDir.resolve(name+".ser");
+                        generator.saveForJava(joined, file);
+
+                        file = outDir.resolve(name+".txt");
+                        generator.saveForTxt(joined, file, false,"\t");
 
                     }
                 }
