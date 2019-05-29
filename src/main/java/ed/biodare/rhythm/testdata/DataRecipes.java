@@ -5,6 +5,7 @@
  */
 package ed.biodare.rhythm.testdata;
 
+import com.sun.media.sound.SF2Region;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Shape.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Skew.NONE;
@@ -13,7 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -33,6 +38,7 @@ public class DataRecipes {
             //recipePythonVSJava(mainOutDir.resolve("python_comp"));
             //recipePeriodsSpreadWithSampling(mainOutDir.resolve("period_spread"));
             //recipeClosePeriodsPhasesWithSampling(mainOutDir.resolve("period_resolution"));
+            //recipeClosePeriodsPhasesDownsampled(mainOutDir.resolve("period_resolution_downsampled"));
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace(System.err);
@@ -286,6 +292,247 @@ public class DataRecipes {
                 generator.saveForTxt(noise, file, false,"\t");
             }
         }
+    }
+ 
+    
+    /**
+     * Data Set for testing resolution of phases and periods.
+     * Using trimming and down sampling.
+     * 4 days of data sampled every one hours,
+     * Periods 23, 23.5, 24, 24.5, 25, 26
+     * Phases 0, 1, 2, 3, 4, 5  non-circadian
+     * noises 0.25, 0.1
+     * Then data cut to 3, 2, 1 day.
+     * Two days and 1 day are also downsampled to 2 hours.
+     * The series have consisted id over datasets.
+     */
+    public static void recipeClosePeriodsPhasesDownsampled(Path suitDir) throws IOException {
+        
+        if (!Files.exists(suitDir))
+            Files.createDirectories(suitDir);
+        
+        TestSuitGenerator generator = new TestSuitGenerator();
+        
+        AtomicInteger ids = new AtomicInteger();
+        int durationHours = 24*4;
+        int interval = 60;
+        
+        Shape[] shapes = {COS, WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK, QUARTER_PEAK };
+        Skew[] skews = {NONE, Skew.MID, Skew.HIGH};
+        
+        double[] periods = {23, 23.5, 24, 24.5, 25, 26}; 
+        
+        double[] phases = {0, 1, 2, 3, 4, 5};
+        
+        double[] noiseLevels = {0.1, 0.25};
+        int replicates = 20;
+        
+        Path suitPattern;
+        // generation of main data
+        {
+            Path outDir = suitDir.resolve("60");
+            suitPattern = outDir;
+            Files.createDirectories(outDir);
+            
+            double[] times = roundToMil(makeTimes(durationHours, interval));
+        
+            
+            for (double noiseLevel: noiseLevels) {
+                
+                int perNoiseSeries = 0;
+                for (Shape shape: shapes) {
+                    for (Skew skew: skews) {
+
+                        DataSet joined = new DataSet();
+                        joined.durationHours = durationHours;
+                        joined.intervalInMinutes = interval;
+                        joined.times = times;
+                        
+                        for (double period: periods) {
+                            
+                            double[] circadianPhases = Arrays.stream(phases).map( p -> (p*24)/period).toArray();
+                            
+                            joined.addEntries(
+                                    generator.generateEntries(times, new Shape[]{shape}, new Skew[]{skew}, 
+                                            new double[]{period}, 
+                                            circadianPhases, 
+                                            new double[]{noiseLevel}, replicates
+                                            ));
+                        }
+                        
+                        if (joined.entries.isEmpty()) continue;
+                        
+                        joined.entries.forEach( e -> e.id = ids.getAndIncrement());
+                        perNoiseSeries+= joined.entries.size();
+
+                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_23-26";
+
+                        Path file = outDir.resolve(name+".ser");
+                        generator.saveForJava(joined, file);
+
+                        file = outDir.resolve(name+".txt");
+                        generator.saveForTxt(joined, file, false,"\t");
+
+                    }
+                }
+                
+                DataSet noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries);
+                //set noise level for aggregating results (50:50 noise to data)
+                noise.entries.get(0).description.noiseLevel = noiseLevel;
+                noise.entries.forEach( e -> e.id = ids.getAndIncrement());
+                String name = interval+"_NL_"+noiseLevel+"_noise";
+
+                Path file = outDir.resolve(name+".ser");
+                generator.saveForJava(noise, file);
+
+                file = outDir.resolve(name+".txt");
+                generator.saveForTxt(noise, file, false,"\t");
+                
+                // make another noise data for ration (5: 1 noise to data)
+                // so 4 * series as there is already 1 noise per data
+                noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries*4);
+                //set noise level for aggregating results
+                noise.entries.get(0).description.noiseLevel = -noiseLevel;
+                noise.entries.forEach( e -> e.id = ids.getAndIncrement());
+                
+                name = interval+"_NL_"+noiseLevel+"_larger_noise";
+
+                file = outDir.resolve(name+".ser");
+                generator.saveForJava(noise, file);
+
+                file = outDir.resolve(name+".txt");
+                generator.saveForTxt(noise, file, false,"\t");
+            }
+        }
+        
+        List<Path> patterns = new ArrayList<>();
+        patterns.add(suitPattern);
+        
+        //downsampling
+        {
+            Path outDir = suitDir.resolve("120_0");
+            Files.createDirectories(outDir);
+            downSampleDir(suitPattern, 2, outDir, 0);
+            patterns.add(outDir);
+            
+            outDir = suitDir.resolve("120_1");
+            Files.createDirectories(outDir);
+            downSampleDir(suitPattern, 2, outDir, 1);
+            patterns.add(outDir);        
+        }
+        
+        for (Path dir : patterns) {
+            trimSeries(dir, List.of(24, 48, 72), "", suitDir);            
+        }
+        
+        
+    }
+
+    static List<Path> trimSeries(Path suitPattern, List<Integer> durations, String suffix, Path suitDir) throws IOException {
+        
+        List<Path> dirs = new ArrayList<>();
+        
+        for (int duration: durations) {
+            Path outDir = suitDir.resolve(""+duration+"_"+suitPattern.getFileName()+suffix);
+            Files.createDirectories(outDir);
+            trimSeries(suitPattern, duration, outDir);
+            dirs.add(outDir);
+        }
+        
+        return dirs;        
+    }
+
+    static void trimSeries(Path suitPattern, int duration, Path outDir) throws IOException {
+        
+        
+        List<Path> files = Files.list(suitPattern)
+                .filter( f -> f.getFileName().toString().endsWith(".ser"))
+                .collect(Collectors.toList());
+        
+        for (Path file: files) {
+            
+            DataSet set = TestSuitGenerator.readFromJava(file);
+            set = trimSet(set, duration);
+            
+            Path outFile = outDir.resolve(file.getFileName());
+            TestSuitGenerator.saveForJava(set, outFile);
+            
+            outFile = outDir.resolve(file.getFileName().toString().replace(".ser", ".txt"));
+            TestSuitGenerator.saveForTxt(set, outFile, false,"\t");
+        }
+        
+    }
+
+    static DataSet trimSet(DataSet set, int duration) {
+        
+        double last = duration+set.times[0];
+        int size = 0;
+        while (set.times[size] <= last) size++;
+        
+        
+        set.times = Arrays.copyOf(set.times, size);
+        set.durationHours = set.times[set.times.length-1];
+        
+        int size1 = size;
+        set.entries.forEach( entry -> {
+            entry.description.durationHours = set.durationHours;
+            entry.values = Arrays.copyOf(entry.values, size1);
+        });
+        return set;
+    }
+
+    static void downSampleDir(Path patterns, int downSample, Path outDir, int offset) throws IOException {
+        
+        List<Path> files = Files.list(patterns)
+                .filter( f -> f.getFileName().toString().endsWith(".ser"))
+                .collect(Collectors.toList());
+        
+        for (Path file: files) {
+            
+            DataSet set = TestSuitGenerator.readFromJava(file);
+            set = downsampleSet(set, downSample, offset);
+            
+            String fileName = file.getFileName().toString();
+            fileName = fileName.substring(fileName.indexOf("_"));
+            fileName = set.intervalInMinutes+fileName;
+            
+            Path outFile = outDir.resolve(fileName);
+            TestSuitGenerator.saveForJava(set, outFile);
+            
+            outFile = outDir.resolve(outFile.getFileName().toString().replace(".ser", ".txt"));
+            TestSuitGenerator.saveForTxt(set, outFile, false,"\t");
+        }
+    }
+
+    static DataSet downsampleSet(DataSet set, int downSample, int offset) {
+        
+        
+        set.times = downsampleArray(set.times, downSample, offset);
+        set.durationHours = set.times[set.times.length-1]-set.times[0];
+        set.intervalInMinutes = set.intervalInMinutes*downSample;
+        
+        set.entries.forEach( entry -> {
+            entry.description.durationHours = set.durationHours;
+            entry.description.intervalInMinutes = set.intervalInMinutes;
+            entry.values = downsampleArray(entry.values, downSample, offset);
+        
+        });
+        
+        return set;
+    }
+    
+    static double[] downsampleArray(double[] values, int downSample, int offset) {
+        int size = 1+ (values.length-offset) / downSample;
+        while ( (size*downSample+offset) > values.length) {
+            size--;
+        }
+        double[] news = new double[size];
+        for (int i =0; i< size; i++) {
+            news[i] = values[offset+i*downSample];
+        }
+        
+        return news;
+        
     }
     
 }

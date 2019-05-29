@@ -121,7 +121,7 @@ public class TestSuitGenerator {
         return entries;
     }     
     
-    public void saveForJava(DataSet set, Path file) throws IOException {
+    public static void saveForJava(DataSet set, Path file) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(file))) {
             out.writeObject(set);
         }
@@ -135,7 +135,7 @@ public class TestSuitGenerator {
         }
     }
     
-    public void saveForTxt(DataSet set, Path file, boolean withDescription, String SEP) throws IOException {
+    public static void saveForTxt(DataSet set, Path file, boolean withDescription, String SEP) throws IOException {
         
         List<List<String>> table = set.toTable(withDescription);
         
