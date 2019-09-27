@@ -133,7 +133,7 @@ public class DataSetTest {
         List<String> row = table.get(1);
         assertEquals("1",row.get(0));
         assertEquals("24.0",row.get(2));
-        assertEquals("2.0",row.get(11));
+        assertEquals("2.0",row.get(12));
     }
     
 }

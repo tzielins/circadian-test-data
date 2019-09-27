@@ -46,6 +46,7 @@ public class WaveformsTest {
         
         for (Shape shape : Shape.values()) {
             
+            if (shape == Shape.NOISE) continue;
             
             System.out.println("\n#"+shape);
             System.out.println("xt="+xs);
