@@ -97,8 +97,7 @@ public class TestSuitGenerator {
         set.durationHours = durationHours;
         set.intervalInMinutes = intervalMinutes;
         set.times = times;
-        set.addEntries(
-                generateNoiseEntries(times, replicates));
+        set.addEntries(generateNoiseEntries(times, replicates));
         
         return set;
     } 
@@ -112,6 +111,8 @@ public class TestSuitGenerator {
         double[][] datas = generateNoise(replicates, times);
 
         DataDescription description = new DataDescription();
+        description.shape = NOISE;
+        description.skew = NONE;
         description.rhythmic = false;
 
         for (double[] values : datas) {

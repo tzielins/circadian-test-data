@@ -45,10 +45,12 @@ public class DataDescription implements Serializable, Cloneable {
     
     public static List<String> makeHeader() {
         return Arrays.asList("rhythmic","period","phase","amplitude","mean",
-                "noiseLevel","shape","skew");
+                "noiseLevel","shape","skew","full label abs phase");
     }
 
     public List<String> toRow() {
+        double absPhase = Math.round((phase/period)*24*10)/10;
+        String fullLabel = ""+period+":"+absPhase+"_"+shape.shortName()+":"+skew+"_"+noiseLevel;
         return Arrays.asList(
                 Boolean.toString(rhythmic),
                 Double.toString(period),
@@ -57,7 +59,8 @@ public class DataDescription implements Serializable, Cloneable {
                 Double.toString(mean),
                 Double.toString(noiseLevel),
                 shape.toString(),
-                skew.toString()
+                skew.toString(),
+                fullLabel
         );
     }
     

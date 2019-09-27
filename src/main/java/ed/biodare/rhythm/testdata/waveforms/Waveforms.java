@@ -22,7 +22,20 @@ public class Waveforms {
         WIDE_PEAK,
         ONE_THIRD_PEAK,
         HALF_PEAK,
-        QUARTER_PEAK
+        QUARTER_PEAK,
+        NOISE;
+        
+        public String shortName() {
+            switch(this) {
+                case COS: return "COS";
+                case WIDE_PEAK: return "WIDE";
+                case ONE_THIRD_PEAK: return "3rd";
+                case HALF_PEAK: return "HALF";
+                case QUARTER_PEAK: return "SPIKE";
+                case NOISE: return "NOISE";
+                default: return this.toString();
+            }
+        };
     }
     
     public enum Skew {
