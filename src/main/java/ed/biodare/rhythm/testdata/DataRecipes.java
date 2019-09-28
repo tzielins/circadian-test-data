@@ -35,6 +35,7 @@ public class DataRecipes {
         Path mainOutDir = outRoot.resolve(LocalDate.now().toString());
         
         try {
+
             /*
             // those one used to assess presets
             recipeCloseTo24PeriodsDownsampled(mainOutDir.resolve("closeTo24"));
@@ -643,7 +644,7 @@ public class DataRecipes {
                         joined.entries.forEach( e -> e.id = ids.getAndIncrement());
                         perNoiseSeries+= joined.entries.size();
 
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_22-26";
+                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_17-21";
 
                         Path file = outDir.resolve(name+".ser");
                         generator.saveForJava(joined, file);
@@ -772,7 +773,7 @@ public class DataRecipes {
                         joined.entries.forEach( e -> e.id = ids.getAndIncrement());
                         perNoiseSeries+= joined.entries.size();
 
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_22-26";
+                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_28-35";
 
                         Path file = outDir.resolve(name+".ser");
                         generator.saveForJava(joined, file);
@@ -975,6 +976,8 @@ public class DataRecipes {
         int interval = 60;
         
         int replicates = 5;
+        int p1 = (int)periods[0];
+        int p2 = (int)periods[periods.length-1];
         
         Path suitPattern;
         // generation of main data
@@ -1014,7 +1017,7 @@ public class DataRecipes {
                         joined.entries.forEach( e -> e.id = ids.getAndIncrement());
                         perNoiseSeries+= joined.entries.size();
 
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_22-26";
+                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_"+p1+"-"+p2;
 
                         Path file = outDir.resolve(name+".ser");
                         generator.saveForJava(joined, file);
