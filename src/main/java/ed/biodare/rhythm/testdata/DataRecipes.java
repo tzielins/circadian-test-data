@@ -5,7 +5,7 @@
  */
 package ed.biodare.rhythm.testdata;
 
-import com.sun.media.sound.SF2Region;
+
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Shape.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Skew.NONE;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
+
 
 /**
  *
@@ -28,6 +28,7 @@ import java.util.stream.Stream;
  */
 public class DataRecipes {
     
+    static int REPLICATES = 10;
     
     public static void main(String [] args) {
     
@@ -36,19 +37,20 @@ public class DataRecipes {
         
         try {
 
-            /*
+            
             // those one used to assess presets
             recipeCloseTo24PeriodsDownsampled(mainOutDir.resolve("closeTo24"));
             recipeShortPeriodsDownsampled(mainOutDir.resolve("short"));
             recipeLongPeriodsDownsampled(mainOutDir.resolve("long"));
+            // manually copy short and long to non24
+            
             recipeCloseTo24SpikeDownsampled(mainOutDir.resolve("spike24"));
             recipeShortSpikeDownsampled(mainOutDir.resolve("spikeShort"));
-            recipeLongSpikeDownsampled(mainOutDir.resolve("spikeLong"));
-            recipeCloseTo24HighNoiseDownsampled(mainOutDir.resolve("closeTo24Noise05"),new double[]{0.5});
-            recipeCloseTo24HighNoiseDownsampled(mainOutDir.resolve("closeTo24Noise075"),new double[]{0.75});
-            recipeShortPeriodsHighNoiseDownsampled(mainOutDir.resolve("shortNoise05"),new double[]{0.5});
-            */
-            
+            // excluded long as not big difference in inital runs recipeLongSpikeDownsampled(mainOutDir.resolve("spikeLong"));
+            recipeCloseTo24HighNoiseDownsampled(mainOutDir.resolve("closeTo24Noise035"),new double[]{0.35});
+            // excluded higher noises as were not giving results recipeCloseTo24HighNoiseDownsampled(mainOutDir.resolve("closeTo24Noise075"),new double[]{0.75});
+            // excluded higher noises as were not giving results recipeShortPeriodsHighNoiseDownsampled(mainOutDir.resolve("shortNoise05"),new double[]{0.5});
+                        
             //recipePythonVSJava(mainOutDir.resolve("python_comp"));
             //recipePeriodsSpreadWithSampling(mainOutDir.resolve("period_spread"));
             //recipeClosePeriodsPhasesWithSampling(mainOutDir.resolve("period_resolution"));
@@ -447,6 +449,37 @@ public class DataRecipes {
      * Data Set for testing data with close to 24 periods and few phases.
      * Using trimming and down sampling.
      * 4 days of data sampled every one hours,
+     * Periods 23, 24, 25
+     * Phases 0, 1, 2, 3, 4, 8, 12  non-circadian
+     * noises 0.25, 0.1
+     * Then data cut to 3, 2, 1 day.
+     * Days are also downsampled to 2 and 4 hours.
+     * The series have consisted id over datasets.
+     * Shapes are limitted to "easy" ones, relatively wide and only low and mid assymetry
+     */
+    public static void recipeVeryCloseTo24PeriodsDownsampled(Path suitDir) throws IOException {
+        
+        if (!Files.exists(suitDir))
+            Files.createDirectories(suitDir);
+        
+        Shape[] shapes = {WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK };
+        Skew[] skews = {Skew.LOW, Skew.MID};
+        
+        double[] periods = {23, 24, 25}; 
+        
+        double[] phases = {0, 1, 2, 3, 4, 8, 12};
+        
+        double[] noiseLevels = {0.1, 0.25};
+
+        
+        recipeDownsampled(suitDir, shapes, skews, periods, phases, noiseLevels);
+        
+    }
+    
+    /**
+     * Data Set for testing data with close to 24 periods and few phases.
+     * Using trimming and down sampling.
+     * 4 days of data sampled every one hours,
      * Periods 22, 23, 24, 25, 26
      * Phases 0, 1, 2, 3, 4, 8, 12  non-circadian
      * noises 0.25, 0.1
@@ -460,12 +493,6 @@ public class DataRecipes {
         if (!Files.exists(suitDir))
             Files.createDirectories(suitDir);
         
-        TestSuitGenerator generator = new TestSuitGenerator();
-        
-        AtomicInteger ids = new AtomicInteger();
-        int durationHours = 24*4;
-        int interval = 60;
-        
         Shape[] shapes = {WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK };
         Skew[] skews = {Skew.LOW, Skew.MID};
         
@@ -474,101 +501,9 @@ public class DataRecipes {
         double[] phases = {0, 1, 2, 3, 4, 8, 12};
         
         double[] noiseLevels = {0.1, 0.25};
-        int replicates = 5;
+
         
-        Path suitPattern;
-        // generation of main data
-        {
-            Path outDir = suitDir.resolve("96_1");
-            suitPattern = outDir;
-            Files.createDirectories(outDir);
-            
-            double[] times = roundToMil(makeTimes(durationHours, interval));
-        
-            
-            for (double noiseLevel: noiseLevels) {
-                
-                int perNoiseSeries = 0;
-                for (Shape shape: shapes) {
-                    for (Skew skew: skews) {
-
-                        DataSet joined = new DataSet();
-                        joined.durationHours = durationHours;
-                        joined.intervalInMinutes = interval;
-                        joined.times = times;
-                        
-                        for (double period: periods) {
-                            
-                            double[] circadianPhases = Arrays.stream(phases).map( p -> (p*24)/period).toArray();
-                            
-                            joined.addEntries(
-                                    generator.generateEntries(times, new Shape[]{shape}, new Skew[]{skew}, 
-                                            new double[]{period}, 
-                                            circadianPhases, 
-                                            new double[]{noiseLevel}, replicates
-                                            ));
-                        }
-                        
-                        if (joined.entries.isEmpty()) continue;
-                        
-                        joined.entries.forEach( e -> e.id = ids.getAndIncrement());
-                        perNoiseSeries+= joined.entries.size();
-
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_22-26";
-
-                        Path file = outDir.resolve(name+".ser");
-                        generator.saveForJava(joined, file);
-
-                        file = outDir.resolve(name+".txt");
-                        generator.saveForTxt(joined, file, true,"\t");
-
-                    }
-                }
-                
-                DataSet noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries);
-                //set noise level for aggregating results (50:50 noise to data)
-                noise.entries.get(0).description.noiseLevel = noiseLevel;
-                noise.entries.forEach( e -> e.id = ids.getAndIncrement());
-                String name = interval+"_NL_"+noiseLevel+"_NOISE";
-
-                Path file = outDir.resolve(name+".ser");
-                generator.saveForJava(noise, file);
-
-                file = outDir.resolve(name+".txt");
-                generator.saveForTxt(noise, file, false,"\t");
-                
-
-            }
-        }
-        
-        List<Path> patterns = new ArrayList<>();
-        patterns.add(suitPattern);
-        
-        //downsampling
-        {
-            Path outDir = suitDir.resolve("96_2");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 0);
-            patterns.add(outDir);
-            
-            /*
-            outDir = suitDir.resolve("120_1");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 1);
-            patterns.add(outDir);        
-            */
-            
-            outDir = suitDir.resolve("96_4");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 4, outDir, 0);
-            patterns.add(outDir);             
-            
-        }
-        
-        for (Path dir : patterns) {
-            trimSeries(dir, List.of(24, 48, 72), "", suitDir);            
-        }
-        
+        recipeDownsampled(suitDir, shapes, skews, periods, phases, noiseLevels);
         
     }
     
@@ -590,12 +525,6 @@ public class DataRecipes {
         if (!Files.exists(suitDir))
             Files.createDirectories(suitDir);
         
-        TestSuitGenerator generator = new TestSuitGenerator();
-        
-        AtomicInteger ids = new AtomicInteger();
-        int durationHours = 24*4;
-        int interval = 60;
-        
         Shape[] shapes = {WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK };
         Skew[] skews = {Skew.LOW, Skew.MID};
         
@@ -604,102 +533,8 @@ public class DataRecipes {
         double[] phases = {0, 1, 2, 3, 4, 8, 12};
         
         double[] noiseLevels = {0.1, 0.25};
-        int replicates = 5;
         
-        Path suitPattern;
-        // generation of main data
-        {
-            Path outDir = suitDir.resolve("96_1");
-            suitPattern = outDir;
-            Files.createDirectories(outDir);
-            
-            double[] times = roundToMil(makeTimes(durationHours, interval));
-        
-            
-            for (double noiseLevel: noiseLevels) {
-                
-                int perNoiseSeries = 0;
-                for (Shape shape: shapes) {
-                    for (Skew skew: skews) {
-
-                        DataSet joined = new DataSet();
-                        joined.durationHours = durationHours;
-                        joined.intervalInMinutes = interval;
-                        joined.times = times;
-                        
-                        for (double period: periods) {
-                            
-                            double[] circadianPhases = Arrays.stream(phases).map( p -> (p*24)/period).toArray();
-                            
-                            joined.addEntries(
-                                    generator.generateEntries(times, new Shape[]{shape}, new Skew[]{skew}, 
-                                            new double[]{period}, 
-                                            circadianPhases, 
-                                            new double[]{noiseLevel}, replicates
-                                            ));
-                        }
-                        
-                        if (joined.entries.isEmpty()) continue;
-                        
-                        joined.entries.forEach( e -> e.id = ids.getAndIncrement());
-                        perNoiseSeries+= joined.entries.size();
-
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_17-21";
-
-                        Path file = outDir.resolve(name+".ser");
-                        generator.saveForJava(joined, file);
-
-                        file = outDir.resolve(name+".txt");
-                        generator.saveForTxt(joined, file, true,"\t");
-
-                    }
-                }
-                
-                DataSet noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries);
-                //set noise level for aggregating results (50:50 noise to data)
-                noise.entries.get(0).description.noiseLevel = noiseLevel;
-                noise.entries.forEach( e -> e.id = ids.getAndIncrement());
-                String name = interval+"_NL_"+noiseLevel+"_NOISE";
-
-                Path file = outDir.resolve(name+".ser");
-                generator.saveForJava(noise, file);
-
-                file = outDir.resolve(name+".txt");
-                generator.saveForTxt(noise, file, false,"\t");
-                
-
-            }
-        }
-        
-        List<Path> patterns = new ArrayList<>();
-        patterns.add(suitPattern);
-        
-        //downsampling
-        {
-            Path outDir = suitDir.resolve("96_2");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 0);
-            patterns.add(outDir);
-            
-            /*
-            outDir = suitDir.resolve("120_1");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 1);
-            patterns.add(outDir);        
-            */
-            
-            outDir = suitDir.resolve("96_4");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 4, outDir, 0);
-            patterns.add(outDir);             
-            
-        }
-        
-        for (Path dir : patterns) {
-            trimSeries(dir, List.of(24, 48, 72), "", suitDir);            
-        }
-        
-        
+        recipeDownsampled(suitDir, shapes, skews, periods, phases, noiseLevels);
     }
     
     /**
@@ -719,12 +554,6 @@ public class DataRecipes {
         if (!Files.exists(suitDir))
             Files.createDirectories(suitDir);
         
-        TestSuitGenerator generator = new TestSuitGenerator();
-        
-        AtomicInteger ids = new AtomicInteger();
-        int durationHours = 24*4;
-        int interval = 60;
-        
         Shape[] shapes = {WIDE_PEAK, ONE_THIRD_PEAK, HALF_PEAK };
         Skew[] skews = {Skew.LOW, Skew.MID};
         
@@ -733,102 +562,8 @@ public class DataRecipes {
         double[] phases = {0, 1, 2, 3, 4, 8, 12};
         
         double[] noiseLevels = {0.1, 0.25};
-        int replicates = 5;
         
-        Path suitPattern;
-        // generation of main data
-        {
-            Path outDir = suitDir.resolve("96_1");
-            suitPattern = outDir;
-            Files.createDirectories(outDir);
-            
-            double[] times = roundToMil(makeTimes(durationHours, interval));
-        
-            
-            for (double noiseLevel: noiseLevels) {
-                
-                int perNoiseSeries = 0;
-                for (Shape shape: shapes) {
-                    for (Skew skew: skews) {
-
-                        DataSet joined = new DataSet();
-                        joined.durationHours = durationHours;
-                        joined.intervalInMinutes = interval;
-                        joined.times = times;
-                        
-                        for (double period: periods) {
-                            
-                            double[] circadianPhases = Arrays.stream(phases).map( p -> (p*24)/period).toArray();
-                            
-                            joined.addEntries(
-                                    generator.generateEntries(times, new Shape[]{shape}, new Skew[]{skew}, 
-                                            new double[]{period}, 
-                                            circadianPhases, 
-                                            new double[]{noiseLevel}, replicates
-                                            ));
-                        }
-                        
-                        if (joined.entries.isEmpty()) continue;
-                        
-                        joined.entries.forEach( e -> e.id = ids.getAndIncrement());
-                        perNoiseSeries+= joined.entries.size();
-
-                        String name = interval+"_NL_"+noiseLevel+"_"+shape+"_"+skew+"_28-35";
-
-                        Path file = outDir.resolve(name+".ser");
-                        generator.saveForJava(joined, file);
-
-                        file = outDir.resolve(name+".txt");
-                        generator.saveForTxt(joined, file, true,"\t");
-
-                    }
-                }
-                
-                DataSet noise = generator.generateNoiseSet(durationHours, interval, perNoiseSeries);
-                //set noise level for aggregating results (50:50 noise to data)
-                noise.entries.get(0).description.noiseLevel = noiseLevel;
-                noise.entries.forEach( e -> e.id = ids.getAndIncrement());
-                String name = interval+"_NL_"+noiseLevel+"_NOISE";
-
-                Path file = outDir.resolve(name+".ser");
-                generator.saveForJava(noise, file);
-
-                file = outDir.resolve(name+".txt");
-                generator.saveForTxt(noise, file, false,"\t");
-                
-
-            }
-        }
-        
-        List<Path> patterns = new ArrayList<>();
-        patterns.add(suitPattern);
-        
-        //downsampling
-        {
-            Path outDir = suitDir.resolve("96_2");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 0);
-            patterns.add(outDir);
-            
-            /*
-            outDir = suitDir.resolve("120_1");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 2, outDir, 1);
-            patterns.add(outDir);        
-            */
-            
-            outDir = suitDir.resolve("96_4");
-            Files.createDirectories(outDir);
-            downSampleDir(suitPattern, 4, outDir, 0);
-            patterns.add(outDir);             
-            
-        }
-        
-        for (Path dir : patterns) {
-            trimSeries(dir, List.of(24, 48, 72), "", suitDir);            
-        }
-        
-        
+        recipeDownsampled(suitDir, shapes, skews, periods, phases, noiseLevels);
     }
     
     
@@ -919,7 +654,7 @@ public class DataRecipes {
      * 4 days of data sampled every one hours,
      * Periods 22, 23, 24, 25, 26
      * Phases 0, 1, 2, 3, 4, 8, 12  non-circadian
-     * noises 0.25, 0.1
+     * noises as given
      * Then data cut to 3, 2, 1 day.
      * Days are also downsampled to 2 and 4 hours.
      * The series have consisted id over datasets.
@@ -975,7 +710,7 @@ public class DataRecipes {
         int durationHours = 24*4;
         int interval = 60;
         
-        int replicates = 5;
+        int replicates = REPLICATES;
         int p1 = (int)periods[0];
         int p2 = (int)periods[periods.length-1];
         
@@ -1032,7 +767,7 @@ public class DataRecipes {
                 //set noise level for aggregating results (50:50 noise to data)
                 noise.entries.get(0).description.noiseLevel = noiseLevel;
                 noise.entries.forEach( e -> e.id = ids.getAndIncrement());
-                String name = interval+"_NL_"+noiseLevel+"_NOISE";
+                String name = interval+"_NL_"+noiseLevel+"_NOISE"+"_"+p1+"-"+p2;;
 
                 Path file = outDir.resolve(name+".ser");
                 generator.saveForJava(noise, file);
