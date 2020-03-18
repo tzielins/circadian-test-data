@@ -37,7 +37,8 @@ public class DataRecipes {
         
         try {
 
-            
+            recipeBDMethodsConsitency(mainOutDir.resolve("bd_consistency"));
+            /* from eJTK tets
             // those one used to assess presets
             recipeCloseTo24PeriodsDownsampled(mainOutDir.resolve("closeTo24"));
             recipeShortPeriodsDownsampled(mainOutDir.resolve("short"));
@@ -55,6 +56,7 @@ public class DataRecipes {
             //recipePeriodsSpreadWithSampling(mainOutDir.resolve("period_spread"));
             //recipeClosePeriodsPhasesWithSampling(mainOutDir.resolve("period_resolution"));
             //recipeClosePeriodsPhasesDownsampled(mainOutDir.resolve("period_resolution_downsampled"));
+            */
         } catch (Exception e) {
             System.err.println(e.getMessage());
             e.printStackTrace(System.err);
@@ -917,6 +919,50 @@ public class DataRecipes {
         }
         
         return news;
+        
+    }
+
+    static void recipeBDMethodsConsitency(Path outDir) throws Exception {
+        
+        if (!Files.exists(outDir))
+            Files.createDirectories(outDir);
+        
+        TestSuitGenerator generator = new TestSuitGenerator();
+        
+        int[] durationHours = {48, 5*24};
+        int[] intervals = {60};
+        
+        Shape[] shapes = {COS, ONE_THIRD_PEAK};
+        Skew[] skews = {NONE};
+        
+        double[] periods = {24};
+        
+        double[] circadianPhases = {5};
+        double[] noiseLevels = {0.1, 0.3};
+        int replicates = 1;
+        
+        for (int duration: durationHours) {
+        for (int interval: intervals) {
+                DataSet set = generator.generateDataSet(duration, interval, 
+                            shapes, skews, 
+                            periods, circadianPhases, 
+                            noiseLevels, replicates);
+                        
+                if (set.entries.isEmpty()) continue;            
+
+                DataSet noise = generator.generateNoiseSet(duration, interval, replicates);
+                set.addEntries(noise.entries);
+                
+                String name = duration+"_"+interval+"_NL_"+Arrays.toString(periods);
+                        
+                Path file = outDir.resolve(name+".ser");
+                //generator.saveForJava(set, file);
+                        
+                file = outDir.resolve(name+".txt");
+                generator.saveForTxt(set, file, true,"\t");
+            
+        }
+        }
         
     }
     
