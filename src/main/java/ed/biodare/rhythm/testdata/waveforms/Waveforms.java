@@ -15,7 +15,7 @@ import static org.apache.commons.math3.util.FastMath.*;
  */
 public class Waveforms {
 
-
+    public static double DEFAULT_MEAN = 10;
 
     public enum Shape {
         COS,
@@ -136,7 +136,7 @@ public class Waveforms {
         
         double phase = ciracdianPhase/24.0;
         
-        PeriodicWaveform wave = new PeriodicWaveform(period, amplitude, waveform(shape, skew, phase), 10);
+        PeriodicWaveform wave = new PeriodicWaveform(period, amplitude, waveform(shape, skew, phase), DEFAULT_MEAN);
 
         return wave.values(times);
     }
@@ -160,12 +160,15 @@ public class Waveforms {
     }
     
     public static double[][] generateNoise(int size, double[] times) {
+        return generateNoise(size, times, 1);
+    }
+    
+    public static double[][] generateNoise(int size, double[] times, double noiseSTD) {
         
-        double noiseFactor = 1;
         
         //This random generator is used with unparametrized NormalDistribution
-        Well19937c random = new Well19937c(calculateSeed(times, noiseFactor));        
-        NormalDistribution dis = new NormalDistribution(random, 0, noiseFactor);        
+        Well19937c random = new Well19937c(calculateSeed(times, noiseSTD));        
+        NormalDistribution dis = new NormalDistribution(random, 0, noiseSTD);        
         
         double[] pattern = Arrays.copyOf(new double[0], times.length);
         

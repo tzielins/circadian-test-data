@@ -5,6 +5,7 @@
  */
 package ed.biodare.rhythm.testdata;
 
+import ed.biodare.rhythm.testdata.waveforms.Waveforms;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Shape.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Skew.*;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
  */
 public class TestSuitGenerator {
     
+    public double DEFAULT_AMPLITUDE = 5;
     
     public DataSet generateDataSet(int durationHours, int intervalMinutes, 
             Shape[] shapes, Skew[] skews,
@@ -51,7 +53,7 @@ public class TestSuitGenerator {
             int replicates) {
         
         
-        double amplitude = 5;
+        double amplitude = DEFAULT_AMPLITUDE;
         
         List<DataEntry> entries = new ArrayList<>();
         
@@ -67,7 +69,7 @@ public class TestSuitGenerator {
                             
                             DataDescription description = new DataDescription();
                             description.amplitude = amplitude;
-                            description.mean = 10;
+                            description.mean = Waveforms.DEFAULT_MEAN;
                             description.noiseLevel = noiseLevel;
                             description.period = period;
                             description.phase = circadianPhase;
@@ -86,9 +88,9 @@ public class TestSuitGenerator {
         }
         return entries;
     } 
-    
+
     public DataSet generateNoiseSet(int durationHours, int intervalMinutes, 
-            int replicates) {
+            int replicates, double noiseSTD) {
         
         
         double[] times = roundToMil(makeTimes(durationHours, intervalMinutes));
@@ -97,18 +99,29 @@ public class TestSuitGenerator {
         set.durationHours = durationHours;
         set.intervalInMinutes = intervalMinutes;
         set.times = times;
-        set.addEntries(generateNoiseEntries(times, replicates));
+        set.addEntries(generateNoiseEntries(times, replicates, noiseSTD));
         
         return set;
+    }
+    
+    public DataSet generateNoiseSet(int durationHours, int intervalMinutes, 
+            int replicates) {
+        
+        return generateNoiseSet(durationHours, intervalMinutes, replicates, 1.0);
     } 
     
     public List<DataEntry> generateNoiseEntries(double[] times, 
             int replicates) {
+        return generateNoiseEntries(times, replicates, 1.0);
+    }    
+    
+    public List<DataEntry> generateNoiseEntries(double[] times, 
+            int replicates, double noiseSTD) {
         
         
         List<DataEntry> entries = new ArrayList<>();
                             
-        double[][] datas = generateNoise(replicates, times);
+        double[][] datas = generateNoise(replicates, times, noiseSTD);
 
         DataDescription description = new DataDescription();
         description.shape = NOISE;

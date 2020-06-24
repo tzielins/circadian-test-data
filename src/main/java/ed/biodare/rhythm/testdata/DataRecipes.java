@@ -6,6 +6,7 @@
 package ed.biodare.rhythm.testdata;
 
 
+import ed.biodare.rhythm.testdata.waveforms.Waveforms;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Shape.*;
 import static ed.biodare.rhythm.testdata.waveforms.Waveforms.Skew.NONE;
@@ -32,12 +33,16 @@ public class DataRecipes {
     
     public static void main(String [] args) {
     
-        Path outRoot = Paths.get("E:\\Temp\\Rhythmicity_tests");
+        Path outRoot = Paths.get("E:\\Temp\\Student");
         Path mainOutDir = outRoot.resolve(LocalDate.now().toString());
         
         try {
 
-            recipeBDMethodsConsitency(mainOutDir.resolve("bd_consistency"));
+            recipeRNNTry(mainOutDir.resolve("rnn"));
+            
+            // for validating results in methods refactoring and jc2
+            //recipeBDMethodsConsitency(mainOutDir.resolve("bd_consistency"));
+            
             /* from eJTK tets
             // those one used to assess presets
             recipeCloseTo24PeriodsDownsampled(mainOutDir.resolve("closeTo24"));
@@ -959,6 +964,53 @@ public class DataRecipes {
                 //generator.saveForJava(set, file);
                         
                 file = outDir.resolve(name+".txt");
+                generator.saveForTxt(set, file, true,"\t");
+            
+        }
+        }
+        
+    }
+ 
+    static void recipeRNNTry(Path outDir) throws Exception {
+        
+        if (!Files.exists(outDir))
+            Files.createDirectories(outDir);
+        
+        TestSuitGenerator generator = new TestSuitGenerator();
+        generator.DEFAULT_AMPLITUDE = 2;
+        Waveforms.DEFAULT_MEAN = 0;
+        
+        int[] durationHours = {3*24};
+        int[] intervals = {60};
+        
+        Shape[] shapes = {COS};
+        Skew[] skews = {NONE};
+        
+        double[] periods = {24};
+        
+        double[] circadianPhases = {0};
+        double[] noiseLevels = {0.1};
+        double noiseSTD = 0.5;
+        int replicates = 2;
+        
+        for (int duration: durationHours) {
+        for (int interval: intervals) {
+                DataSet set = generator.generateDataSet(duration, interval, 
+                            shapes, skews, 
+                            periods, circadianPhases, 
+                            noiseLevels, replicates);
+                        
+                if (set.entries.isEmpty()) continue;            
+
+                DataSet noise = generator.generateNoiseSet(duration, interval, replicates, noiseSTD);
+                set.addEntries(noise.entries);
+                
+                String name = duration+"_"+interval+"_P_"+Arrays.toString(periods);
+                        
+                Path file = outDir.resolve(name+".ser");
+                //generator.saveForJava(set, file);
+                        
+                file = outDir.resolve(name+".tsv");
                 generator.saveForTxt(set, file, true,"\t");
             
         }
